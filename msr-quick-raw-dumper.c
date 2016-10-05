@@ -45,8 +45,8 @@ int main(int argc, char * argv[])
 	/* Get the firmware version information */
 	msr_fwrev (fd);
 
-	/* Set the reader into Lo-Co mode */
-	msr_set_lo_co (fd);
+	/* Set the reader into Hi-Co mode */
+	msr_set_hi_co (fd);
 
 	/* Ram test */
 	msr_ram_test (fd);
@@ -54,24 +54,18 @@ int main(int argc, char * argv[])
 	/* Prepare the reader with a reset */
 	msr_init (fd);
 
-do {
-	bzero ((char *)&tracks, sizeof(tracks));
+	do {
+		bzero ((char *)&tracks, sizeof(tracks));
 
-	for (i = 0; i < MSR_MAX_TRACKS; i++)
-		tracks.msr_tracks[i].msr_tk_len = MSR_MAX_TRACK_LEN;
+		for (i = 0; i < MSR_MAX_TRACKS; i++)
+			tracks.msr_tracks[i].msr_tk_len = MSR_MAX_TRACK_LEN;
 
-	printf("Ready to do a raw read. Please slide a card.\n");
-	msr_raw_read (fd, &tracks);
+		printf("Ready to do a raw read. Please slide a card.\n");
+		msr_raw_read (fd, &tracks);
 
-        /* If we didn't get any data, don't do this next part */
-	for (i = 0; i < MSR_MAX_TRACKS; i++) {
-		int x;
-		printf("track%d: ", i);
-		for (x = 0; x < tracks.msr_tracks[i].msr_tk_len; x++)
-			printf("%02x ", tracks.msr_tracks[i].msr_tk_data[x]);
-		printf("\n");
-	}
-} while (1);
+	    /* If we didn't get any data, don't do this next part */
+		msr_pretty_printer_bits(tracks);
+	} while (1);
 
 	/* We're finished */
 	msr_serial_close (fd);
