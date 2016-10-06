@@ -4,10 +4,16 @@
 #include <fcntl.h>
 #include <err.h>
 #include <libmsr.h>
+#include <stdlib.h>
 
 #define STREQ(a, b) (!(strcmp((a), (b))))
+#define FATAL(format, ...) do { \
+							fprintf(stderr, "Fatal: " format "\n", ##__VA_ARGS__); \
+							exit(1); \
+						} while(0)
 
 static char *version = "0.1.0";
+static char *coercivity = "high";
 static int output = 1;
 static char *format = "bits";
 static char *device = "/dev/ttyUSB0";
@@ -19,6 +25,7 @@ int main(int argc, char **argv)
 	signed char opt;
 	struct option options[] =
 	{
+		{ "coercivity", required_argument, 0, 'c' },
 		{ "output", required_argument, 0, 'o' },
 		{ "format", required_argument, 0, 'f' },
 		{ "device", required_argument, 0, 'd' },
@@ -27,13 +34,20 @@ int main(int argc, char **argv)
 		{ 0, 0, 0, 0 }
 	};
 
-	while ((opt = getopt_long(argc, argv, "o:f:d:hv", options, NULL)) != -1) {
+	while ((opt = getopt_long(argc, argv, "c:o:f:d:hv", options, NULL)) != -1) {
 		switch (opt) {
+			case 'c':
+				coercivity = optarg;
+
+				if (!(STREQ(coercivity, "high") || STREQ(coercivity, "low"))) {
+					FATAL("Bad coercivity: '%s'.", coercivity);
+				}
+				break;
 			case 'o':
 				output = creat(optarg, 644);
 
 				if (output < 1)	{
-					printf("Fatal: Couldn't open '%s' for output.\n", optarg);
+					FATAL("Couldn't open '%s' for output.", optarg);
 				}
 				break;
 			case 'f':
@@ -41,8 +55,7 @@ int main(int argc, char **argv)
 
 				if (!(STREQ(format, "bits") || STREQ(format, "hex")
 					|| STREQ(format, "string"))) {
-					printf("Fatal: Unrecognized format: '%s'\n", format);
-					return 1;
+					FATAL("Bad format: '%s'.", format);
 				}
 				break;
 			case 'd':
@@ -54,6 +67,7 @@ int main(int argc, char **argv)
 			default:
 				printf("Usage: %s [options]\n", argv[0]);
 				printf("\n%s\n", "Options:\n"
+					"  -c, --coercivity <high|low>\n"
 					"  -o, --output <file>\n"
 					"  -f, --format <bits|hex|string>\n"
 					"  -d, --device <file>\n"
@@ -71,13 +85,18 @@ int dump(void)
 	int msr_fd = -1;
 	msr_tracks_t tracks = {0};
 
-	if (msr_serial_open(device, &msr_fd, MSR_BLOCKING, MSR_BAUD) < 0) {
-		err(1, "Serial open of '%s' failed.", device);
-		return 1;
+	if (msr_serial_open(device, &msr_fd, MSR_BLOCKING, MSR_BAUD) != 0) {
+		FATAL("Serial open of '%s' failed.", device);
 	}
 
 	msr_init(msr_fd);
-	msr_set_hi_co(msr_fd);
+
+	if (STREQ(coercivity, "high")) {
+		msr_set_hi_co(msr_fd);
+	}
+	else {
+		msr_set_lo_co(msr_fd);
+	}
 
 	for (int i = 0; i < MSR_MAX_TRACKS; i++) {
 		tracks.msr_tracks[i].msr_tk_len = MSR_MAX_TRACK_LEN;
