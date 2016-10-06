@@ -69,9 +69,7 @@ int main(int argc, char **argv)
 int dump(void)
 {
 	int msr_fd = -1;
-	msr_tracks_t tracks;
-
-	memset(&tracks, 0, sizeof(tracks));
+	msr_tracks_t tracks = {0};
 
 	if (msr_serial_open(device, &msr_fd, MSR_BLOCKING, MSR_BAUD) < 0) {
 		err(1, "Serial open of '%s' failed.", device);
