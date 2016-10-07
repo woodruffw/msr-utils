@@ -13,7 +13,7 @@
 							exit(1); \
 						} while(0)
 
-static char *version = "0.1.0";
+static char *version = "0.2.0";
 static char *coercivity = "high";
 static int output = 1;
 static char *format = "bits";
