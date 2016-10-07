@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <err.h>
 #include <libmsr.h>
+#include <unistd.h>
 #include <stdlib.h>
 
 #define STREQ(a, b) (!(strcmp((a), (b))))
@@ -53,8 +54,8 @@ int main(int argc, char **argv)
 			case 'f':
 				format = optarg;
 
-				if (!(STREQ(format, "bits") || STREQ(format, "hex")
-					|| STREQ(format, "string"))) {
+				if (!(STREQ(format, "raw") || STREQ(format, "bits")
+					|| STREQ(format, "hex") || STREQ(format, "string"))) {
 					FATAL("Bad format: '%s'.", format);
 				}
 				break;
@@ -69,7 +70,7 @@ int main(int argc, char **argv)
 				printf("\n%s\n", "Options:\n"
 					"  -c, --coercivity <high|low>\n"
 					"  -o, --output <file>\n"
-					"  -f, --format <bits|hex|string>\n"
+					"  -f, --format <raw|bits|hex|string>\n"
 					"  -d, --device <file>\n"
 					"  -v, --version\n"
 					"  -h, --help\n");
@@ -77,7 +78,11 @@ int main(int argc, char **argv)
 		}
 	}
 
-	return dump();
+	dump();
+
+	close(output);
+
+	return 0;
 }
 
 int dump(void)
@@ -104,7 +109,13 @@ int dump(void)
 
 	msr_raw_read(msr_fd, &tracks);
 
-	if (STREQ(format, "bits")) {
+	if (STREQ(format, "raw")) {
+		for (int tn = 0; tn < MSR_MAX_TRACKS; tn++) {
+			write(output, tracks.msr_tracks[tn].msr_tk_data,
+					tracks.msr_tracks[tn].msr_tk_len);
+		}
+	}
+	else if (STREQ(format, "bits")) {
 		msr_pretty_output_bits(output, tracks);
 	}
 	else if (STREQ(format, "hex")) {
