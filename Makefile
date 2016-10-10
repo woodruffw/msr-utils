@@ -1,5 +1,7 @@
 # This currently builds some sample user space programs
 
+PREFIX = /usr
+
 CFLAGS = -Wall -g -std=c99 -pedantic -D_POSIX_C_SOURCE=200809L
 LDFLAGS = -lmsr
 
@@ -72,15 +74,15 @@ $(FILEFIELDVISUALIZER): $(FILEFIELDVISUALIZEROBJS)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 install:
-	install -m755 -D $(MSRDEMO) $(DESTDIR)/usr/bin/$(MSRDEMO)
-	install -m755 -D $(MSRQUICKERASER) $(DESTDIR)/usr/bin/$(MSRQUICKERASER)
-	install -m755 -D $(MSRDUMP) $(DESTDIR)/usr/bin/$(MSRDUMP)
-	install -m755 -D $(MSRQUICKISODUMPER) $(DESTDIR)/usr/bin/$(MSRQUICKISODUMPER)
-	install -m755 -D $(MSRQUICKRAWDUMPER) $(DESTDIR)/usr/bin/$(MSRQUICKRAWDUMPER)
-	install -m755 -D $(MAKSTRIPEQUICKCLONE) $(DESTDIR)/usr/bin/$(MAKSTRIPEQUICKCLONE)
-	install -m755 -D $(MSRBARTDUMPER) $(DESTDIR)/usr/bin/$(MSRBARTDUMPER)
-	install -m755 -D $(FILEBITREVERSER) $(DESTDIR)/usr/bin/$(FILEBITREVERSER)
-	install -m755 -D $(FILEBITSHIFTER) $(DESTDIR)/usr/bin/$(FILEBITSHIFTER)
+	install -m755 -D $(MSRDEMO) $(PREFIX)/bin/$(MSRDEMO)
+	install -m755 -D $(MSRQUICKERASER) $(PREFIX)/bin/$(MSRQUICKERASER)
+	install -m755 -D $(MSRDUMP) $(PREFIX)/bin/$(MSRDUMP)
+	install -m755 -D $(MSRQUICKISODUMPER) $(PREFIX)/bin/$(MSRQUICKISODUMPER)
+	install -m755 -D $(MSRQUICKRAWDUMPER) $(PREFIX)/bin/$(MSRQUICKRAWDUMPER)
+	install -m755 -D $(MAKSTRIPEQUICKCLONE) $(PREFIX)/bin/$(MAKSTRIPEQUICKCLONE)
+	install -m755 -D $(MSRBARTDUMPER) $(PREFIX)/bin/$(MSRBARTDUMPER)
+	install -m755 -D $(FILEBITREVERSER) $(PREFIX)/bin/$(FILEBITREVERSER)
+	install -m755 -D $(FILEBITSHIFTER) $(PREFIX)/bin/$(FILEBITSHIFTER)
 
 clean:
 	rm -rf *.o *~
