@@ -19,7 +19,7 @@ static int output = 1;
 static char *format = "bits";
 static char *device = "/dev/ttyUSB0";
 
-int dump(void);
+void dump();
 
 int main(int argc, char **argv)
 {
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-int dump(void)
+void dump(void)
 {
 	int msr_fd = -1;
 	msr_tracks_t tracks = {0};
@@ -127,5 +127,4 @@ int dump(void)
 
 	msr_serial_close(msr_fd);
 
-	return 0;
 }
