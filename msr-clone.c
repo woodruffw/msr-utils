@@ -6,6 +6,7 @@
 #include <libmsr.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define STREQ(a, b) (!(strcmp((a), (b))))
 #define FATAL(format, ...) do { \
@@ -13,6 +14,7 @@
 							exit(1); \
 						} while(0)
 
+static bool raw = false;
 static char *version = "0.0.1";
 static char *coercivity = "high";
 static char *device = "/dev/ttyUSB0";
@@ -24,6 +26,7 @@ int main(int argc, char **argv)
 	signed char opt;
 	struct option options[] =
 	{
+		{ "raw", no_argument, 0, 'r'},
 		{ "coercivity", required_argument, 0, 'c' },
 		{ "device", required_argument, 0, 'd' },
 		{ "version", no_argument, 0, 'v' },
@@ -31,8 +34,11 @@ int main(int argc, char **argv)
 		{ 0, 0, 0, 0 }
 	};
 
-	while ((opt = getopt_long(argc, argv, "c:d:hv", options, NULL)) != -1) {
+	while ((opt = getopt_long(argc, argv, "rc:d:hv", options, NULL)) != -1) {
 		switch (opt) {
+			case 'r':
+				raw = true;
+				break;
 			case 'c':
 				coercivity = optarg;
 
@@ -88,11 +94,21 @@ void clone()
 
 	printf("Scan the card to be cloned...\n");
 
-	msr_raw_read(msr_fd, &tracks);
+	if (raw) {
+		msr_raw_read(msr_fd, &tracks);
+	}
+	else {
+		msr_iso_read(msr_fd, &tracks);
+	}
 
 	printf("Scan the card to clone onto...\n");
 
-	msr_raw_write(msr_fd, &tracks);
+	if (raw) {
+		msr_raw_write(msr_fd, &tracks);
+	}
+	else {
+		msr_iso_write(msr_fd, &tracks);
+	}
 
 	msr_serial_close(msr_fd);
 }
