@@ -66,7 +66,6 @@ int main(int argc, char **argv)
 
 void clone()
 {
-	int ret;
 	int msr_fd = -1;
 	msr_tracks_t tracks = {0};
 
