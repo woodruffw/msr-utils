@@ -57,7 +57,6 @@ int main(int argc, char **argv)
 				printf("\n%s\n", "Options:\n"
 					"  -c, --coercivity <high|low>\n"
 					"  -o, --output <file>\n"
-					"  -f, --format <raw|bits|hex|string>\n"
 					"  -d, --device <file>\n"
 					"  -v, --version\n"
 					"  -h, --help\n");
