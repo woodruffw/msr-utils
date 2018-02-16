@@ -18,6 +18,7 @@ static char *coercivity = "high";
 static int output = 1;
 static char *format = "bits";
 static char *device = "/dev/ttyUSB0";
+static int iso = 0;
 
 void dump();
 
@@ -30,6 +31,7 @@ int main(int argc, char **argv)
 		{ "output", required_argument, 0, 'o' },
 		{ "format", required_argument, 0, 'f' },
 		{ "device", required_argument, 0, 'd' },
+        { "iso", no_argument, 0, 'i' },
 		{ "version", no_argument, 0, 'v' },
 		{ "help", no_argument, 0, 'h' },
 		{ 0, 0, 0, 0 }
@@ -62,6 +64,9 @@ int main(int argc, char **argv)
 			case 'd':
 				device = optarg;
 				break;
+            case 'i':
+                iso = 1;
+                break;
 			case 'v':
 				printf("msr-dump %s (c) William Woodruff 2016\n", version);
 				break;
@@ -72,6 +77,7 @@ int main(int argc, char **argv)
 					"  -o, --output <file>\n"
 					"  -f, --format <raw|bits|hex|string>\n"
 					"  -d, --device <file>\n"
+                    "  -i, --iso\n"
 					"  -v, --version\n"
 					"  -h, --help\n");
 				return 1;
@@ -107,7 +113,12 @@ void dump(void)
 		tracks.msr_tracks[i].msr_tk_len = MSR_MAX_TRACK_LEN;
 	}
 
-	msr_raw_read(msr_fd, &tracks);
+    if (iso) {
+        msr_iso_read(msr_fd, &tracks);
+    }
+    else {
+        msr_raw_read(msr_fd, &tracks);
+    }
 
 	if (STREQ(format, "raw")) {
 		for (int tn = 0; tn < MSR_MAX_TRACKS; tn++) {
